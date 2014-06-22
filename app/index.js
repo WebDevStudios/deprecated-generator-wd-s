@@ -64,11 +64,16 @@ var WdSGenerator = yeoman.generators.Base.extend({
   },
 
   getFiles: function () {
-    var files   = this.expandFiles('**/*', { cwd: this.sourceRoot(), dot: true });
-    var ignores = [
+    var files   = this.expandFiles('**/*', { cwd: this.sourceRoot(), dot: true }),
+        self    = this,
+        ignores = [
       '.git',
       'LICENSE',
       'README.md',
+    ],
+        replaces = [
+      '.php',
+      '.css'
     ];
 
     this.package = JSON.parse(this.readFileAsString(path.join(__dirname, '../package.json')));
@@ -80,27 +85,19 @@ var WdSGenerator = yeoman.generators.Base.extend({
         return;
       }
 
-      this.copy(file, file);
+      if ( file.indexOf( '.php' ) > -1 || file.indexOf( '.css' ) > -1 ) {
+        var result = self.readFileAsString( file );
+        result = result.replace(/Text Domain: _s/g, "Text Domain: " + self._.slugify(self.themename) + "");
+        result = result.replace(/'_s'/g, "'" + self._.slugify(self.themename) + "'");
+        result = result.replace(/_s_/g, self._.underscored(self._.slugify(self.themename)) + "_");
+        result = result.replace(/ _s/g, " " + self.themename);
+        result = result.replace(/_s-/g, self._.slugify(self.themename) + "-");
+        self.write( file.replace( '/_s', '/' + this.themename ), result );
+      } else {
+        // Copy over files substituting the theme name.
+        this.copy(file, file.replace( '/_s', '/' + this.themename ) );
+      }
     }, this);
-  },
-
-  renameFiles: function() {
-    var filesToRename = this.expand( '**/_s*' ),
-        fileToRename,
-        oldSourceRoot = this.sourceRoot();
-    
-    this.sourceRoot( this.destinationRoot() );
-    for ( var i = 0; i < filesToRename.length; i += 1 ) {
-      fileToRename = filesToRename[i];
-      this.copy( fileToRename, fileToRename.replace('/_s', '/' + this.themename ) );
-      this.dest.delete( fileToRename );
-    }
-    this.sourceRoot( oldSourceRoot );
-  },
-
-  projectfiles: function () {
-    //this.copy('editorconfig', '.editorconfig');
-    //this.copy('jshintrc', '.jshintrc');
   }
 });
 

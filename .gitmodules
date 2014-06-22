@@ -1,3 +1,3 @@
 [submodule "app/templates"]
 	path = app/templates
-	url = git://github.com/WebDevStudios/wd_s.git
+	url = git@github.com:WebDevStudios/wd_s.git
