@@ -3,14 +3,14 @@
 var path = require('path');
 var helpers = require('yeoman-generator').test;
 
-describe('wd_s-generator generator', function () {
+describe('wd_s generator', function () {
   beforeEach(function (done) {
     helpers.testDirectory(path.join(__dirname, 'temp'), function (err) {
       if (err) {
         return done(err);
       }
 
-      this.app = helpers.createGenerator('wd_s-generator:app', [
+      this.app = helpers.createGenerator('wd_s:app', [
         '../../app'
       ]);
       done();

@@ -6,7 +6,7 @@ var yosay = require('yosay');
 var chalk = require('chalk');
 
 
-var WdSGeneratorGenerator = yeoman.generators.Base.extend({
+var WdSGenerator = yeoman.generators.Base.extend({
   init: function () {
     this.pkg = require('../package.json');
 
@@ -63,10 +63,25 @@ var WdSGeneratorGenerator = yeoman.generators.Base.extend({
     }.bind(this));
   },
 
-  app: function () {
-    this.tarbalURL = 'https://github.com/WebDevStudios/wd_s/archive/master.tar.gz';
-    this.log.info( 'Downloading and extracting' );
-    this.tarball( this.tarbalURL, '.', this.async() );
+  getFiles: function () {
+    var files   = this.expandFiles('**/*', { cwd: this.sourceRoot(), dot: true });
+    var ignores = [
+      '.git',
+      'LICENSE',
+      'README.md',
+    ];
+
+    this.package = JSON.parse(this.readFileAsString(path.join(__dirname, '../package.json')));
+
+    this.log.writeln('Generating from ' + 'WD_S'.cyan + ' v' + this.package.version.cyan + '...');
+
+    files.forEach(function(file) {
+      if (ignores.indexOf(file) !== -1) {
+        return;
+      }
+
+      this.copy(file, file);
+    }, this);
   },
 
   renameFiles: function() {
@@ -89,4 +104,4 @@ var WdSGeneratorGenerator = yeoman.generators.Base.extend({
   }
 });
 
-module.exports = WdSGeneratorGenerator;
+module.exports = WdSGenerator;
