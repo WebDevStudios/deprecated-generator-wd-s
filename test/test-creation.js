@@ -3,7 +3,7 @@
 var path = require('path');
 var helpers = require('yeoman-generator').test;
 
-describe('wd_s generator', function () {
+describe('wd_s', function () {
   beforeEach(function (done) {
     helpers.testDirectory(path.join(__dirname, 'temp'), function (err) {
       if (err) {

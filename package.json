@@ -1,10 +1,10 @@
 {
-  "name": "generator-wd-s-generator",
+  "name": "generator-wd-s",
   "version": "0.0.0",
-  "description": "Yeoman generator",
+  "description": "wd_s generator",
   "license": "MIT",
   "main": "app/index.js",
-  "repository": "CamdenSegal/generator-wd-s-generator",
+  "repository": "CamdenSegal/generator-wd-s",
   "author": {
     "name": "Camden Segal",
     "email": "camden.segal@gmail.com",
