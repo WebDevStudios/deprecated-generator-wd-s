@@ -32,17 +32,17 @@ var WdSGenerator = yeoman.generators.Base.extend({
       },
       {
         name: 'themeuri',
-        message: 'What is the URL of your theme?',
+        message: 'Enter the URI of your theme?',
         default: 'http://webdevstudios.com'
       },
       {
         name: 'author',
-        message: 'What is your name?',
+        message: 'Enter the  Author name?',
         default: 'WebDevStudios'
       },
       {
         name: 'authoruri',
-        message: 'What is your URL?',
+        message: 'Enter the Author URI?',
         default: 'http://webdevstudios.com/'
       },
       {
