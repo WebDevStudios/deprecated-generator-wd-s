@@ -85,13 +85,26 @@ var WdSGenerator = yeoman.generators.Base.extend({
         return;
       }
 
-      if ( file.indexOf( '.php' ) > -1 || file.indexOf( '.css' ) > -1 ) {
-        var result = self.readFileAsString( file );
-        result = result.replace(/Text Domain: _s/g, "Text Domain: " + self._.slugify(self.themename) + "");
-        result = result.replace(/'_s'/g, "'" + self._.slugify(self.themename) + "'");
-        result = result.replace(/_s_/g, self._.underscored(self._.slugify(self.themename)) + "_");
-        result = result.replace(/ _s/g, " " + self.themename);
-        result = result.replace(/_s-/g, self._.slugify(self.themename) + "-");
+      if ( file.indexOf( '.php' ) > -1 || file.indexOf( '.css'  ) > -1 || file.indexOf( '.scss'  ) > -1 || file.indexOf( '.js'  ) > -1 ) {
+        var result = self.read( file );
+        result = result.replace( /Text Domain: _s/g, 'Text Domain: ' + self._.slugify(self.themename));
+        result = result.replace( /'_s'/g, '\'' + self._.slugify(self.themename) + '\'');
+        result = result.replace( /_s_/g, self._.underscored(self._.slugify(self.themename)) + '_');
+        result = result.replace( / _s/g, ' ' + self.themename);
+        result = result.replace( /_s /g, self.themename + ' ');
+        result = result.replace( /\/_s/g, '/' + self.themename );
+        result = result.replace( /_s-/g, self._.slugify(self.themename) + '-');
+        
+        if ( file.indexOf( 'style.scss' ) > -1 ) {
+          self.log.info( 'Updating theme information in ' + file );
+          result = result.replace( /(Theme Name: )(.+)/g, '$1' + self.themename );
+          result = result.replace( /(Theme URI: )(.+)/g, '$1' + self.themeuri );
+          result = result.replace( /(Author: )(.+)/g, '$1' + self.author );
+          result = result.replace( /(Author URI: )(.+)/g, '$1' + self.authoruri );
+          result = result.replace( /(Description: )(.+)/g, '$1' + self.themedescription );
+          result = result.replace( /(Version: )(.+)/g, '$10.0.1' );
+        }
+
         self.write( file.replace( '/_s', '/' + this.themename ), result );
       } else {
         // Copy over files substituting the theme name.
