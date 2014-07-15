@@ -30,6 +30,14 @@ var WdSGenerator = yeoman.generators.Base.extend({
         message: 'The project name',
         default: this.appname
       },
+       {
+        type: 'input',
+        name: 'shortname',
+        message: 'The shortened project name for use as namespace',
+        default: function( props ) {
+          return this._.slugify( props.themename );
+        }.bind(this)
+      },
       {
         name: 'themeuri',
         message: 'What is the URL of your theme?',
@@ -54,6 +62,7 @@ var WdSGenerator = yeoman.generators.Base.extend({
 
     this.prompt(prompts, function (props) {
       this.themename = props.themename;
+      this.shortname = this._.slugify( props.shortname );
       this.themeuri = props.themeuri;
       this.author = props.author;
       this.authoruri = props.authoruri;
@@ -108,13 +117,14 @@ var WdSGenerator = yeoman.generators.Base.extend({
 
       if ( file.indexOf( '.php' ) > -1 || file.indexOf( '.css'  ) > -1 || file.indexOf( '.scss'  ) > -1 || file.indexOf( '.js'  ) > -1 ) {
         var result = self.read( file );
-        result = result.replace( /Text Domain: _s/g, 'Text Domain: ' + self._.slugify(self.themename));
-        result = result.replace( /'_s'/g, '\'' + self._.slugify(self.themename) + '\'');
-        result = result.replace( /_s_/g, self._.underscored(self._.slugify(self.themename)) + '_');
-        result = result.replace( / _s/g, ' ' + self.themename);
-        result = result.replace( /_s /g, self.themename + ' ');
-        result = result.replace( /\/_s/g, '/' + self.themename );
-        result = result.replace( /_s-/g, self._.slugify(self.themename) + '-');
+        result = result.replace( /Text Domain: _s/g, 'Text Domain: ' + self.shortname);
+        result = result.replace( /'_s'/g, '\'' + self.shortname + '\'');
+        result = result.replace( /_s_/g, self._.underscored(self.shortname) + '_');
+        result = result.replace( / _s/g, ' ' + self.shortname);
+        result = result.replace( /_s /g, self.shortname + ' ');
+        result = result.replace( /\/_s/g, '/' + self.shortname );
+        result = result.replace( /_s-/g, self.shortname + '-');
+        result = result.replace( /_S_/g, self._.titleize( self.shortname ).replace( '-', '_' ) + '_' );
         
         if ( file.indexOf( 'style.scss' ) > -1 ) {
           self.log.info( 'Updating theme information in ' + file );
@@ -129,7 +139,7 @@ var WdSGenerator = yeoman.generators.Base.extend({
         if ( file == 'package.json' ) {
           self.log.info( 'Updating package information in ' + file );
 
-          result = result.replace( /("name": )(.+)/g, '$1"' + self.themename + '",' );
+          result = result.replace( /("name": )(.+)/g, '$1"' + self._.slugify( self.themename ) + '",' );
           result = result.replace( /("description": )(.+)/g, '$1"' + self.themedescription + '",' );
           result = result.replace( /("version": )(.+)/g, '$1"0.0.1",' );
           result = result.replace( /("author": )(.+)/g, '$1"' + self.author + '",' );
@@ -138,10 +148,10 @@ var WdSGenerator = yeoman.generators.Base.extend({
           result = result.replace( /("url": )(.+)/g, '$1""' );
         }
 
-        self.write( file.replace( '/_s', '/' + self._.slugify(this.themename) ), result );
+        self.write( file.replace( '/_s', '/' + this.shortname ), result );
       } else {
         // Copy over files substituting the theme name.
-        this.copy( file, file.replace( '/_s', '/' + self._.slugify(this.themename) ) );
+        this.copy( file, file.replace( '/_s', '/' + this.shortname ) );
       }
     }, this);
   },
