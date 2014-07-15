@@ -141,7 +141,7 @@ var WdSGenerator = yeoman.generators.Base.extend({
         self.write( file.replace( '/_s', '/' + self._.slugify(this.themename) ), result );
       } else {
         // Copy over files substituting the theme name.
-        this.copy( file, file.replace( '/_s', '/' + this.themename ) );
+        this.copy( file, file.replace( '/_s', '/' + self._.slugify(this.themename) ) );
       }
     }, this);
   },
