@@ -138,7 +138,7 @@ var WdSGenerator = yeoman.generators.Base.extend({
           result = result.replace( /("url": )(.+)/g, '$1""' );
         }
 
-        self.write( file.replace( '/_s', '/' + this.themename ), result );
+        self.write( file.replace( '/_s', '/' + self._.slugify(this.themename) ), result );
       } else {
         // Copy over files substituting the theme name.
         this.copy( file, file.replace( '/_s', '/' + this.themename ) );
