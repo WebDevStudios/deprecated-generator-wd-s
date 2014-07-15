@@ -27,13 +27,13 @@ var WdSGenerator = yeoman.generators.Base.extend({
       {
         type: 'input',
         name: 'themename',
-        message: 'The project name',
+        message: 'Enter the project name?',
         default: this.appname
       },
        {
         type: 'input',
         name: 'shortname',
-        message: 'The shortened project name for use as namespace',
+        message: 'Enter the shortened project name?',
         default: function( props ) {
           return this._.slugify( props.themename );
         }.bind(this)
