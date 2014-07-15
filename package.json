@@ -28,8 +28,7 @@
     "yosay": "^0.1.0"
   },
   "devDependencies": {
-    "mocha": "*",
-    "rimraf": "^2.2.8"
+    "mocha": "*"
   },
   "peerDependencies": {
     "yo": ">=1.0.0"
