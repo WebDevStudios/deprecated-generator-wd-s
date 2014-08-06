@@ -92,6 +92,10 @@ var WdSGenerator = yeoman.generators.Base.extend({
       this.log( 'Cloning wd_s from GitHub...' );
       clone = this.spawnCommand( 'git', ['clone', '--recursive', 'git@github.com:WebDevStudios/wd_s.git', '.', '-q'], { cwd: this.sourceRoot() } );
 
+      clone.on( 'error', function() {
+        this.log( 'ERROR CAUGHT' )
+      }.bind( this ) );
+
       clone.on( 'close', function() {
         done();
       }.bind( this ));
