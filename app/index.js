@@ -84,6 +84,11 @@ var WdSGenerator = yeoman.generators.Base.extend({
       pull.on( 'close', function() {
         update = this.spawnCommand( 'git', ['submodule', 'update', '--recursive', '-q'], { cwd: this.sourceRoot() } );
 
+        update.on( 'error', function(code, signal) {
+          this.log( 'ERROR CAUGHT: ' + signal );
+          this.log( code );
+        }.bind( this ) );
+
         update.on( 'close', function() {
           done();
         });
@@ -92,8 +97,9 @@ var WdSGenerator = yeoman.generators.Base.extend({
       this.log( 'Cloning wd_s from GitHub...' );
       clone = this.spawnCommand( 'git', ['clone', '--recursive', 'git@github.com:WebDevStudios/wd_s.git', '.', '-q'], { cwd: this.sourceRoot() } );
 
-      clone.on( 'error', function() {
-        this.log( 'ERROR CAUGHT' )
+      clone.on( 'error', function(code, signal) {
+        this.log( 'ERROR CAUGHT: ' + signal );
+        this.log( code );
       }.bind( this ) );
 
       clone.on( 'close', function() {
