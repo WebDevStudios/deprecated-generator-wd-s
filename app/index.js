@@ -128,6 +128,7 @@ var WdSGenerator = yeoman.generators.Base.extend({
       if ( file.indexOf( '.php' ) > -1 || file.indexOf( '.css'  ) > -1 || file.indexOf( '.scss'  ) > -1 || file.indexOf( '.js'  ) > -1 ) {
         var result = self.read( file );
         result = result.replace( /Text Domain: _s/g, 'Text Domain: ' + self.shortname);
+        result = result.replace( /wds_/g, self._.underscored(self.shortname) + '_');
         result = result.replace( /'_s'/g, '\'' + self.shortname + '\'');
         result = result.replace( /_s_/g, self._.underscored(self.shortname) + '_');
         result = result.replace( / _s/g, ' ' + self.shortname);
@@ -135,7 +136,8 @@ var WdSGenerator = yeoman.generators.Base.extend({
         result = result.replace( /\/_s/g, '/' + self.shortname );
         result = result.replace( /_s-/g, self.shortname + '-');
         result = result.replace( /_S_/g, self._.titleize( self.shortname ).replace( '-', '_' ) + '_' );
-        
+        result = result.replace( /_S /g, self._.titleize( self.shortname ).replace( '-', '_' ) + ' ' );
+
         if ( file.indexOf( 'style.scss' ) > -1 ) {
           self.log.info( 'Updating theme information in ' + file );
           result = result.replace( /(Theme Name: )(.+)/g, '$1' + self.themename );
@@ -158,10 +160,10 @@ var WdSGenerator = yeoman.generators.Base.extend({
           result = result.replace( /("url": )(.+)/g, '$1""' );
         }
 
-        self.write( file.replace( '/_s', '/' + this.shortname ), result );
+        self.write( file.replace( /\/_s|\/_wds/g, '/' + this.shortname ), result );
       } else {
         // Copy over files substituting the theme name.
-        this.copy( file, file.replace( '/_s', '/' + this.shortname ) );
+        this.copy( file, file.replace( /\/_s|\/_wds/g, '/' + this.shortname ) );
       }
     }, this);
   },
