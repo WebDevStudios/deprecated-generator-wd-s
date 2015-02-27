@@ -7,7 +7,7 @@ var chalk = require('chalk');
 
 
 var WdSGenerator = yeoman.generators.Base.extend({
-  init: function () {
+  initializing: function () {
     this.pkg = require('../package.json');
 
     this.on('end', function () {
@@ -17,7 +17,7 @@ var WdSGenerator = yeoman.generators.Base.extend({
     });
   },
 
-  askFor: function () {
+  prompting: function () {
     var done = this.async();
 
     // Have Yeoman greet the user.
@@ -72,101 +72,116 @@ var WdSGenerator = yeoman.generators.Base.extend({
     }.bind(this));
   },
 
-  cloneRepo: function() {
-    var done = this.async(),
-        clone,
-        pull,
-        update;
+  _textReplace: function( file ) {
+    var result = this.read( file );
 
-    if ( this.src.exists( 'package.json' ) ) {
-      this.log( 'Updating wd_s from GitHub...' );
-      pull = this.spawnCommand( 'git', ['pull', '--recurse-submodules', '-q'], { cwd: this.sourceRoot() } );
-      pull.on( 'close', function() {
-        update = this.spawnCommand( 'git', ['submodule', 'update', '--recursive', '-q'], { cwd: this.sourceRoot() } );
+    result = result.replace( /Text Domain: _s/g, 'Text Domain: ' + this.shortname);
+    result = result.replace( /wds_/g, this._.underscored(this.shortname) + '_');
+    result = result.replace( /'_s'/g, '\'' + this.shortname + '\'');
+    result = result.replace( /_s_/g, this._.underscored(this.shortname) + '_');
+    result = result.replace( / _s/g, ' ' + this.shortname);
+    result = result.replace( /_s /g, this.shortname + ' ');
+    result = result.replace( /\/_s/g, '/' + this.shortname );
+    result = result.replace( /_s-/g, this.shortname + '-');
+    result = result.replace( /_S_/g, this._.titleize( this.shortname ).replace( '-', '_' ) + '_' );
+    result = result.replace( /_S /g, this._.titleize( this.shortname ).replace( '-', '_' ) + ' ' );
 
-        update.on( 'error', function(code, signal) {
-          this.log( 'ERROR CAUGHT: ' + signal );
-          this.log( code );
-        }.bind( this ) );
+    if ( file.indexOf( 'style.scss' ) > -1 ) { // Do style header replacements
+      this.log.info( 'Updating theme information in ' + file );
+      result = result.replace( /(Theme Name: )(.+)/g, '$1' + this.themename );
+      result = result.replace( /(Theme URI: )(.+)/g, '$1' + this.themeuri );
+      result = result.replace( /(Author: )(.+)/g, '$1' + this.author );
+      result = result.replace( /(Author URI: )(.+)/g, '$1' + this.authoruri );
+      result = result.replace( /(Description: )(.+)/g, '$1' + this.themedescription );
+      result = result.replace( /(Version: )(.+)/g, '$10.0.1' );
+    }
 
-        update.on( 'close', function() {
-          done();
-        });
-      }.bind( this ));
-    } else {
-      this.log( 'Cloning wd_s from GitHub...' );
-      clone = this.spawnCommand( 'git', ['clone', '--recursive', 'git@github.com:WebDevStudios/wd_s.git', '.', '-q'], { cwd: this.sourceRoot() } );
+    if ( file == 'package.json' ) { // Do package.json replacements
+      this.log.info( 'Updating package information in ' + file );
 
-      clone.on( 'error', function(code, signal) {
+      result = result.replace( /("name": )(.+)/g, '$1"' + this._.slugify( this.themename ) + '",' );
+      result = result.replace( /("description": )(.+)/g, '$1"' + this.themedescription + '",' );
+      result = result.replace( /("version": )(.+)/g, '$1"0.0.1",' );
+      result = result.replace( /("author": )(.+)/g, '$1"' + this.author + '",' );
+      result = result.replace( /("homepage": )(.+)/g, '$1"' + this.themeuri + '",' );
+      result = result.replace( /("bugs": )(.+)/g, '$1"",' );
+      result = result.replace( /("url": )(.+)/g, '$1""' );
+    }
+
+    return result;
+  },
+
+  writing: {
+    cloneRepo: function() {
+      var done = this.async(),
+          clone,
+          clear,
+          pull,
+          update;
+
+      var cmdError = function(code, signal) {
         this.log( 'ERROR CAUGHT: ' + signal );
         this.log( code );
-      }.bind( this ) );
+      }.bind(this);
 
-      clone.on( 'close', function() {
-        done();
-      }.bind( this ));
-    }
-  },
+      if ( this.src.exists( 'package.json' ) ) {
+        this.log( 'Updating wd_s from GitHub...' );
+        pull = this.spawnCommand( 'git', ['pull', '--recurse-submodules', '-q'], { cwd: this.sourceRoot() } );
+        pull.on( 'close', function() {
+          update = this.spawnCommand( 'git', ['submodule', 'update', '--recursive', '-q'], { cwd: this.sourceRoot() } );
 
-  getFiles: function () {
-    var files   = this.expandFiles('**/*', { cwd: this.sourceRoot(), dot: true }),
-        self    = this,
-        ignores = [
-          'LICENSE',
-          'README.md',
-        ];
+          update.on( 'error', cmdError );
 
-    this.package = JSON.parse(this.src.read( 'package.json' ));
-
-    this.log.writeln('Generating from ' + 'WD_S' + ' v' + this.package.version + '...');
-
-    files.forEach(function(file) {
-      if (ignores.indexOf(file) !== -1 || file.indexOf( '.git/' ) !== -1 ) {
-        return;
-      }
-
-      if ( file.indexOf( '.php' ) > -1 || file.indexOf( '.css'  ) > -1 || file.indexOf( '.scss'  ) > -1 || file.indexOf( '.js'  ) > -1 ) {
-        var result = self.read( file );
-        result = result.replace( /Text Domain: _s/g, 'Text Domain: ' + self.shortname);
-        result = result.replace( /wds_/g, self._.underscored(self.shortname) + '_');
-        result = result.replace( /'_s'/g, '\'' + self.shortname + '\'');
-        result = result.replace( /_s_/g, self._.underscored(self.shortname) + '_');
-        result = result.replace( / _s/g, ' ' + self.shortname);
-        result = result.replace( /_s /g, self.shortname + ' ');
-        result = result.replace( /\/_s/g, '/' + self.shortname );
-        result = result.replace( /_s-/g, self.shortname + '-');
-        result = result.replace( /_S_/g, self._.titleize( self.shortname ).replace( '-', '_' ) + '_' );
-        result = result.replace( /_S /g, self._.titleize( self.shortname ).replace( '-', '_' ) + ' ' );
-
-        if ( file.indexOf( 'style.scss' ) > -1 ) {
-          self.log.info( 'Updating theme information in ' + file );
-          result = result.replace( /(Theme Name: )(.+)/g, '$1' + self.themename );
-          result = result.replace( /(Theme URI: )(.+)/g, '$1' + self.themeuri );
-          result = result.replace( /(Author: )(.+)/g, '$1' + self.author );
-          result = result.replace( /(Author URI: )(.+)/g, '$1' + self.authoruri );
-          result = result.replace( /(Description: )(.+)/g, '$1' + self.themedescription );
-          result = result.replace( /(Version: )(.+)/g, '$10.0.1' );
-        }
-
-        if ( file == 'package.json' ) {
-          self.log.info( 'Updating package information in ' + file );
-
-          result = result.replace( /("name": )(.+)/g, '$1"' + self._.slugify( self.themename ) + '",' );
-          result = result.replace( /("description": )(.+)/g, '$1"' + self.themedescription + '",' );
-          result = result.replace( /("version": )(.+)/g, '$1"0.0.1",' );
-          result = result.replace( /("author": )(.+)/g, '$1"' + self.author + '",' );
-          result = result.replace( /("homepage": )(.+)/g, '$1"' + self.themeuri + '",' );
-          result = result.replace( /("bugs": )(.+)/g, '$1"",' );
-          result = result.replace( /("url": )(.+)/g, '$1""' );
-        }
-
-        self.write( file.replace( /\/_s|\/_wds/g, '/' + this.shortname ), result );
+          update.on( 'close', function() {
+            done();
+          });
+        }.bind( this ));
       } else {
-        // Copy over files substituting the theme name.
-        this.copy( file, file.replace( /\/_s|\/_wds/g, '/' + this.shortname ) );
+        clear = this.spawnCommand( 'rm', ['-f', '.keep'], { cwd: this.sourceRoot() } );
+        clear.on( 'error', cmdError );
+
+        clear.on( 'close', function() {
+          this.log( 'Cloning wd_s from GitHub...' );
+          clone = this.spawnCommand( 'git', ['clone', '--recursive', 'git@github.com:WebDevStudios/wd_s.git', '.', '-q'], { cwd: this.sourceRoot() } );
+
+          clone.on( 'error', cmdError );
+
+          clone.on( 'close', function() {
+            done();
+          }.bind( this ));
+        }.bind(this));
       }
-    }, this);
-  },
+    },
+
+    doFiles: function () {
+      var files   = this.expandFiles('**/*', { cwd: this.sourceRoot(), dot: true }),
+          self    = this,
+          ignores = [
+            'LICENSE',
+            'README.md',
+            '.keep'
+          ];
+
+      this.package = JSON.parse(this.src.read( 'package.json' ));
+
+      this.log.writeln('Generating from ' + 'WD_S' + ' v' + this.package.version + '...');
+
+      files.forEach(function(file) {
+        if (ignores.indexOf(file) !== -1 || file.indexOf( '.git/' ) !== -1 ) {
+          return; // Don't copy over git folder or other ignored files
+        }
+
+        if ( file.indexOf( '.php' ) > -1 || file.indexOf( '.css'  ) > -1 || file.indexOf( '.scss'  ) > -1 || file.indexOf( '.js'  ) > -1 ) {
+          var result = self._textReplace( file );
+
+          self.write( file.replace( /\/_s|\/_wds/g, '/' + self.shortname ), result );
+        } else {
+          // Copy over files substituting the theme name.
+          self.copy( file, file.replace( /\/_s|\/_wds/g, '/' + self.shortname ) );
+        }
+      }, this);
+    }
+  }
 });
 
 module.exports = WdSGenerator;
