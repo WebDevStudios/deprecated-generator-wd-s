@@ -81,6 +81,7 @@ var WdSGenerator = yeoman.generators.Base.extend({
     result = result.replace( /_s_/g, this._.underscored(this.shortname) + '_');
     result = result.replace( / _s/g, ' ' + this.shortname);
     result = result.replace( /_s /g, this.shortname + ' ');
+    result = result.replace( /_s\./g, this.shortname + '.');
     result = result.replace( /\/_s/g, '/' + this.shortname );
     result = result.replace( /_s-/g, this.shortname + '-');
     result = result.replace( /_S_/g, this._.titleize( this.shortname ).replace( '-', '_' ) + '_' );
