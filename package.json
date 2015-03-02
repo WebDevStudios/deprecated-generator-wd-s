@@ -1,6 +1,6 @@
 {
   "name": "generator-wd-s",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "wd_s generator",
   "license": "MIT",
   "main": "app/index.js",
