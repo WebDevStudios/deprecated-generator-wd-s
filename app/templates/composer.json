@@ -1,0 +1,25 @@
+{
+    "name": "webdevstudios/<%= slug %>",
+    "description": "<%= description %>",
+    "repositories":[
+        {
+            "type":"composer",
+            "url":"http://wpackagist.org"
+        }
+    ],
+    "require": {
+        "composer/installers":"*",
+        "wpackagist-plugin/jetpack":"*",
+        "wpackagist-plugin/query-monitor":"*",
+        "wpackagist-plugin/regenerate-thumbnails":"*",
+        "wpackagist-plugin/theme-check":"*",
+        "wpackagist-plugin/transients-manager":"*"
+    },
+    "extra": {
+        "installer-paths": {
+            "plugins/{$name}/": ["type:wordpress-plugin"],
+            "themes/{$name}/": ["type:wordpress-theme"],
+            "muplugin/{$name}/": ["type:wordpress-muplugin"]
+        }
+    }
+}
