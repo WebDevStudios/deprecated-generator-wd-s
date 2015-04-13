@@ -30,5 +30,8 @@
   },
   "devDependencies": {
     "mocha": "*"
+  },
+  "peerDependencies": {
+    "generator-s": "*"
   }
 }

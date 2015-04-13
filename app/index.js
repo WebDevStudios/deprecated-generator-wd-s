@@ -23,7 +23,7 @@ module.exports = yeoman.generators.Base.extend({
       default: 'WDS Project Title'
     },{
       type: 'text',
-      name: 'shortname',
+      name: 'slug',
       message: 'Slug',
       default: function(props){
         return this._.slugify( props.name );
@@ -130,10 +130,6 @@ module.exports = yeoman.generators.Base.extend({
       }.bind(this);
 
       nextModule();
-    },
-
-    theme: function() {
-      this.log('Installing theme');
     }
   },
 
@@ -141,5 +137,21 @@ module.exports = yeoman.generators.Base.extend({
     if ( ! this.options['skip-install'] ) {
       this.spawnCommand('composer', ['install'] );
     }
+  },
+
+  end: function() {
+    // Theme generator run at end to prevent install conflicts.
+    this.composeWith( 's', {
+      options: {
+        noprompt: true,
+        dir: 'themes/' + this.slug,
+        themename: this.name,
+        shortname: this.slug,
+        themeuri: this.uri,
+        author: this.author,
+        authoruri: this.authoruri,
+        descrip: this.description
+      }
+    });
   }
 });
